@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Bella Poarch Stickers</string>
+    <string name="animated_stickers">Animated Stickers</string>
+    <string name="static_stickers">Static Stickers</string>
+    <string name="title_dynamicfeatureanimated">Animated Stickers</string>
+    <string name="title_dynamicfeaturestatic">Module Title</string>
+</resources>
