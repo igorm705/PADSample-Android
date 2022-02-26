@@ -2,5 +2,5 @@ include ':app'
 include ':animated_asset_pack'
 include ':install_time_asset_pack'
 include ':static_asset_pack'
-include ':stickers_module'
 rootProject.name = "PADSample-Android"
+include ':readdatafromfiles'

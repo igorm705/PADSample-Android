@@ -7,8 +7,8 @@ android {
         applicationId "com.playassets.playassetdeliverydemo"
         minSdkVersion 29
         targetSdkVersion 31
-        versionCode 8
-        versionName "8.0"
+        versionCode 12
+        versionName "12.0"
 
 
         assetPacks = [":animated_asset_pack", ":install_time_asset_pack",  ":static_asset_pack"]
@@ -36,5 +36,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-
+    def fresco_version = '2.5.0'
+    implementation "com.facebook.fresco:fresco:$fresco_version"
+    implementation "com.facebook.fresco:webpsupport:$fresco_version"
+    implementation "com.facebook.fresco:animated-webp:$fresco_version"
+    implementation "com.facebook.fresco:animated-base:$fresco_version"
+    implementation 'com.googlecode.json-simple:json-simple:1.1'
 }
