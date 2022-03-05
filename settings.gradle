@@ -4,3 +4,4 @@ include ':install_time_asset_pack'
 include ':static_asset_pack'
 rootProject.name = "PADSample-Android"
 include ':readdatafromfiles'
+include ':jsonreader'

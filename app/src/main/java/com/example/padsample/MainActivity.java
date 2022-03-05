@@ -1,9 +1,8 @@
 package com.example.padsample;
 
-import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -27,13 +26,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,11 +44,11 @@ public class MainActivity extends AppCompatActivity {
     private Boolean static_pack = false;
     private static final String TAG = "MainActivity";
     AssetPackManager assetPackManager;
-     View animatedCardView, staticCardView;
+    View animatedCardView, staticCardView;
     static ArrayList<View> viewsList;
     List<String> list = new ArrayList();
     AssetPackLocation assetPackPath;
-    String assetsFolderPath = "";
+    static String assetsFolderPath = "";
     String animatedAssetPack = "animated_asset_pack";
     String staticAssetPack = "static_asset_pack";
     String asset_pack = "";
@@ -58,9 +57,16 @@ public class MainActivity extends AppCompatActivity {
     JSONArray stickers;
     Iterator<JSONObject> iterator;
     HashMap<String, JSONObject> identifierSet = new HashMap<String, JSONObject>();
+    byte[] bytes;
+
 
     //-------------------------------------------------------------------
   private void initialize_views(){
+
+
+      Log.i("RecyclerView", "class MainActivity, " +
+              "   private void initialize_views() ");
+
       //initialize the  images
       animatedCardView = findViewById(R.id.AnimatedCardView);
       staticCardView = findViewById(R.id.StaticCardView);
@@ -104,49 +110,62 @@ public class MainActivity extends AppCompatActivity {
   //---------------------------------------------------------------------------------------------------
   @NonNull
   private  ArrayList<StickerPack> fetchFromJSON(JSONObject jo) {
+
+      Log.i("RecyclerView", "class MainActivity, " +
+              "    private  ArrayList<StickerPack> fetchFromJSON(JSONObject jo) ");
+
       ArrayList<StickerPack> stickerPackList = new ArrayList<>();
 
       // A JSON array. JSONObject supports java.util.List interface.
-      JSONArray sticker_packs = (JSONArray) jo.get("sticker_packs");
+      JSONArray stickersJSON =  new JSONArray();
+      stickersJSON = (JSONArray) jo.get("sticker_packs");
 
+      // Iterate jsonArray using for loop
+      for (int i = 0; i < stickersJSON.size(); i++) {
+          JSONObject jo_inner = new JSONObject();
+          jo_inner =(JSONObject) stickersJSON.get(i);
 
-      // An iterator over a collection. Iterator takes the place of Enumeration in the Java Collections Framework.
-      // Iterators differ from enumerations in two ways:
-      // 1. Iterators allow the caller to remove elements from the underlying collection during the iteration with well-defined semantics.
-      // 2. Method names have been improved.
-       iterator = sticker_packs.iterator();
-      while (iterator.hasNext()) {
           final String ANIMATED_STICKER_PACK = "animated_sticker_pack";
-          final String identifier = (String) jo.get("sticker_pack_identifier");
-          final String name = (String) jo.get("sticker_pack_name");
-          final String publisher = (String) jo.get("sticker_pack_publisher");
-          final String trayImage = (String) jo.get("sticker_pack_icon");
-          final String androidPlayStoreLink = (String) jo.get("android_play_store_link");
-          final String iosAppLink = (String) jo.get("ios_app_download_link");
-          final String publisherEmail = (String) jo.get("sticker_pack_publisher_email");
-          final String publisherWebsite = (String) jo.get("sticker_pack_publisher_website");
-          final String privacyPolicyWebsite = (String) jo.get( "sticker_pack_privacy_policy_website");
-          final String licenseAgreementWebsite = (String) jo.get("sticker_pack_license_agreement_website");
-          final String imageDataVersion = (String) jo.get("image_data_version");
+          final String identifier = (String) jo_inner.get("identifier");
+          final String name = (String) jo_inner.get("name");
+          final String publisher = (String) jo_inner.get("publisher");
+          final String trayImage = (String) jo_inner.get("tray_image_file");
+          final String androidPlayStoreLink = (String) jo_inner.get("android_play_store_link");
+          final String iosAppLink = (String) jo_inner.get("ios_app_download_link");
+          final String publisherEmail = (String) jo_inner.get("publisher_email");
+          final String publisherWebsite = (String) jo_inner.get("publisher_website");
+          final String privacyPolicyWebsite = (String) jo_inner.get( "privacy_policy_website");
+          final String licenseAgreementWebsite = (String) jo_inner.get("license_agreement_website");
+          final String imageDataVersion = (String) jo_inner.get("image_data_version");
 
-          final boolean avoidCache = (Boolean) jo.get ("whatsapp_will_not_cache_stickers");
-          final boolean animatedStickerPack =(Boolean) jo.get ("animated_sticker_pack");
+          boolean avoidCache = false;
+          boolean animatedStickerPack = false;
+          try {
+              animatedStickerPack = (Boolean) jo_inner.get ("animatedStickerPack");
+          }
+          catch (Exception e) {
+              Log.e(TAG, "animatedStickerPack is false");
+          }
+
+
           final StickerPack stickerPack = new StickerPack(identifier, name, publisher, trayImage, publisherEmail, publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
           stickerPack.setAndroidPlayStoreLink(androidPlayStoreLink);
           stickerPack.setIosAppStoreLink(iosAppLink);
 
-
-          JSONObject stickers = (JSONObject) jo.get(iterator);
-
-          // Add keys and values
-          identifierSet.put(identifier, stickers);
+          // Mapping JSONObjects values to string keys
+          identifierSet.put(identifier, jo_inner);
           stickerPackList.add(stickerPack);
       }
+
 
       return stickerPackList;
   }
     //--------------------------------------------------------------------------------------------------
     private void inputStreamFiles(File file) {
+
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "    private void inputStreamFiles(File file) ");
 
             try {
                 InputStream is = new FileInputStream(file);
@@ -160,39 +179,77 @@ public class MainActivity extends AppCompatActivity {
             }
     }
     //------------------------------------------------------------------------------------------------
+    static public String getAssetsFolderPath (String identifier, String name){
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "   static public String getAssetsFolderPath (String identifier, String name) ");
+
+      String str = assetsFolderPath + "/" + identifier + "/" + name;
+
+      return str;
+    }
+    //------------------------------------------------------------------------------------------------
     @NonNull
-    private  List<Sticker> fetchFromContentProviderForStickers(JSONObject jo) {
+    private  List<Sticker> fetchFromContentProviderForStickers(StickerPack stickerPack) {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "   private  List<Sticker> fetchFromContentProviderForStickers(StickerPack stickerPack)  ");
+
         //Uri uri = getStickerListUri(identifier);
 
-        final String[] projection = {"sticker_file_name", "sticker_emoji"};
+   //     final String[] projection = {"sticker_file_name", "sticker_emoji"};
       //  final Cursor cursor = contentResolver.query(uri, projection, null, null, null);
         List<Sticker> stickers = new ArrayList<>();
 
+
         // A JSON array. JSONObject supports java.util.List interface.
-        JSONArray stickersJSON = (JSONArray) jo.get("stickers");
+        JSONObject jo_inner = new JSONObject();
+        jo_inner = identifierSet.get(stickerPack.identifier);
 
-        iterator = stickersJSON.iterator();
-        while (iterator.hasNext()) {
-            final String name = (String) jo.get("sticker_file_name");
-            final String emojisConcatenated =  (String) jo.get("sticker_emoji");
+        JSONArray stickersJSON =  new JSONArray();
+        stickersJSON = (JSONArray) jo_inner.get("stickers");
 
-            List<String> emojis = new ArrayList<>(StickerPackValidator.EMOJI_MAX_LIMIT);
-            if (!TextUtils.isEmpty(emojisConcatenated)) {
-                emojis = Arrays.asList(emojisConcatenated.split(","));
-            }
+        // Iterate jsonArray using for loop
+        for (int i = 0; i < stickersJSON.size(); i++) {
+                JSONObject jo_temp = new JSONObject();
+                jo_temp =(JSONObject) stickersJSON.get(i);
+            final String name = (String) jo_temp.get("image_file");
+            List<String> emojis = new ArrayList();
+            emojis = (List<String>) jo_temp.get("emojis");
             stickers.add(new Sticker(name, emojis));
         }
 
         return stickers;
     }
     //--------------------------------------------------------------------------------------------------
+     byte[] fetchStickerAsset(@NonNull final String identifier, @NonNull final String name) throws IOException {
+
+         Log.i("RecyclerView", "class MainActivity, " +
+                 "  byte[] fetchStickerAsset(@NonNull final String identifier, @NonNull final String name)  ");
+
+        String current_path = assetsFolderPath + "/" + identifier + "/" + name;
+
+        try (final InputStream is = new FileInputStream(current_path);
+             final ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            int read;
+            byte[] data = new byte[16384];
+            while ((read = is.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, read);
+            }
+            return buffer.toByteArray();
+        }
+    }
+    //--------------------------------------------------------------------------------------------------
     @NonNull
     private List<Sticker> getStickersForPack(Context context, StickerPack stickerPack) {
-        final List<Sticker> stickers = fetchFromContentProviderForStickers(identifierSet.get(stickerPack.identifier));
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "  private List<Sticker> getStickersForPack(Context context, StickerPack stickerPack) ");
+
+        final List<Sticker> stickers = fetchFromContentProviderForStickers(stickerPack);
         for (Sticker sticker : stickers) {
-            final byte[] bytes;
             try {
-                bytes = fetchStickerAsset(stickerPack.identifier, sticker.imageFileName, context.getContentResolver());
+                bytes = fetchStickerAsset(stickerPack.identifier, sticker.imageFileName);
                 if (bytes.length <= 0) {
                     throw new IllegalStateException("Asset file is empty, pack: " + stickerPack.name + ", sticker: " + sticker.imageFileName);
                 }
@@ -206,6 +263,10 @@ public class MainActivity extends AppCompatActivity {
 
   //--------------------------------------------------------------------------------------------------
   private void initAnimatedPack(){
+
+      Log.i("RecyclerView", "class MainActivity, " +
+              " private void initAnimatedPack() ");
+
       String assetsPath = getAbsoluteAssetPath(asset_pack, "");
       if (assetsPath == null) {
           getPackStates(asset_pack);
@@ -220,9 +281,15 @@ public class MainActivity extends AppCompatActivity {
   //---------------------------------------------------------------------------------------------------
   private  void initStaticPack() throws IOException, ParseException {
 
+      Log.i("RecyclerView", "class MainActivity, " +
+              "private  void initStaticPack() ");
+
       String assetsPath = getAbsoluteAssetPath(asset_pack, "");
       if (assetsPath == null) {
           getPackStates(asset_pack);
+
+
+
       }
       if (assetsPath != null) {
 
@@ -235,48 +302,17 @@ public class MainActivity extends AppCompatActivity {
           } catch (IOException  | ParseException e1) {
               e1.printStackTrace();
           }
-
-
-
           for (StickerPack stickerPack : stickerPackList) {
               final List<Sticker> stickers = getStickersForPack(getApplicationContext(), stickerPack);
               stickerPack.setStickers(stickers);
-              StickerPackValidator.verifyStickerPackValidity(context, stickerPack);
+            //  StickerPackValidator.verifyStickerPackValidity(stickerPack, bytes);
           }
-     //     return stickerPackList;
-       /*   File dir = new File(assetsFolderPath);
-          File[] files = dir.listFiles();
-          // Fetching all the files
-          for (File file : files) {
-              if(file.isFile()) {
-                  try {
-                      System.out.println("");
-                  } catch (Exception e) {
-                      e.printStackTrace();
-                  }
 
-                  BufferedReader inputStream = null;
-                  String line;
-                  try {
-                      inputStream = new BufferedReader(new FileReader(file));
-                      while ((line = inputStream.readLine()) != null) {
-                          System.out.println(line);
-                      }
-                  }catch(IOException e) {
-                      System.out.println(e);
-                  }
-                  finally {
-                      if (inputStream != null) {
-                          inputStream.close();
-                      }
-                  }
-              }
-          }*/
+          final Intent intent = new Intent(this, EntryActivity.class);
+          intent.putParcelableArrayListExtra(StickerPackListActivity.EXTRA_STICKER_PACK_LIST_DATA, stickerPackList);
+          intent.putExtra("StickerPackList", stickerPackList);
+          startActivity(intent);
 
-
-
-          //  File file = new File(assetsFolderPath + "/fast_follow2.txt");
-        //  inputStreamFiles(file);
       }
 
   }
@@ -285,6 +321,10 @@ public class MainActivity extends AppCompatActivity {
      * This method will check which button was clicked & call respective method to get file & play
      */
     private void initClickedAssetPack() throws IOException, ParseException {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "private void initClickedAssetPack()");
+
         if (animated_pack) {
             animated_pack = false;
             initAnimatedPack();
@@ -299,6 +339,10 @@ public class MainActivity extends AppCompatActivity {
      * This method will get Instance of AssetPackManager For fast-follow & on-demand deliver mode
      */
     private void initAssetPackManager () throws IOException, ParseException {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "private void initAssetPackManager () ");
+
         if (Utils.isInternetConnected(getApplicationContext())) {
             if (assetPackManager == null) {
                 assetPackManager = AssetPackManagerFactory.getInstance(getApplicationContext());
@@ -316,6 +360,9 @@ public class MainActivity extends AppCompatActivity {
      * fetch method.
      */
     private void registerListener() throws IOException, ParseException {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "private void registerListener()  ");
 
         if (animated_pack){
             asset_pack = animatedAssetPack;
@@ -342,6 +389,10 @@ public class MainActivity extends AppCompatActivity {
      * This method is used to Get download information about asset packs
      */
     private void getPackStates(String assetPackName) {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "private void getPackStates(String assetPackName) ");
+
         assetPackManager.getPackStates(Collections.singletonList(assetPackName))
                 .addOnCompleteListener(new OnCompleteListener<AssetPackStates>() {
                     @Override
@@ -367,6 +418,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                " protected void onCreate(Bundle savedInstanceState) ");
+
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
@@ -434,6 +489,13 @@ public class MainActivity extends AppCompatActivity {
      */
     @Override
     protected void onDestroy() {
+
+        Log.i("Destroy", "class MainActivity, " +
+                "protected void onDestroy() ");
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                "protected void onDestroy() ");
+
         try{
             super.onDestroy();
             assetPackManager.unregisterListener(mAssetPackStateUpdateListener);
@@ -445,6 +507,9 @@ public class MainActivity extends AppCompatActivity {
     //-------------------------------------------------------
     // fast-follow 和 on-demand 需要通过AssetPackLocation获取到assetpack的路径，在根据绝对路径来读取资源
     private String getAbsoluteAssetPath(String assetPack, String relativeAssetPath) {
+
+        Log.i("RecyclerView", "class MainActivity, " +
+                " private String getAbsoluteAssetPath(String assetPack, String relativeAssetPath) ");
 
          assetPackPath = assetPackManager.getPackLocation(assetPack);
 

@@ -10,6 +10,7 @@ package com.example.padsample;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.List;
 
@@ -32,7 +33,17 @@ class StickerPack implements Parcelable {
     String androidPlayStoreLink;
     private boolean isWhitelisted;
 
-    StickerPack(String identifier, String name, String publisher, String trayImageFile, String publisherEmail, String publisherWebsite, String privacyPolicyWebsite, String licenseAgreementWebsite, String imageDataVersion, boolean avoidCache, boolean animatedStickerPack) {
+    StickerPack(String identifier, String name, String publisher,
+                String trayImageFile, String publisherEmail, String publisherWebsite,
+                String privacyPolicyWebsite, String licenseAgreementWebsite,
+                String imageDataVersion, boolean avoidCache, boolean animatedStickerPack) {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                " StickerPack(String identifier, String name, String publisher,\n" +
+                "                String trayImageFile, String publisherEmail, String publisherWebsite, \n" +
+                "                String privacyPolicyWebsite, String licenseAgreementWebsite, \n" +
+                "                String imageDataVersion, boolean avoidCache, boolean animatedStickerPack) ");
+
         this.identifier = identifier;
         this.name = name;
         this.publisher = publisher;
@@ -47,14 +58,26 @@ class StickerPack implements Parcelable {
     }
 
     void setIsWhitelisted(boolean isWhitelisted) {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                " void setIsWhitelisted(boolean isWhitelisted) ");
+
         this.isWhitelisted = isWhitelisted;
     }
 
     boolean getIsWhitelisted() {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                " boolean getIsWhitelisted() ");
+
         return isWhitelisted;
     }
 
     private StickerPack(Parcel in) {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                " private StickerPack(Parcel in) ");
+
         identifier = in.readString();
         name = in.readString();
         publisher = in.readString();
@@ -86,6 +109,9 @@ class StickerPack implements Parcelable {
     };
 
     void setStickers(List<Sticker> stickers) {
+
+        Log.i("RecyclerView", "class StickerPack, void setStickers(List<Sticker> stickers)");
+
         this.stickers = stickers;
         totalSize = 0;
         for (Sticker sticker : stickers) {
@@ -94,28 +120,52 @@ class StickerPack implements Parcelable {
     }
 
     void setAndroidPlayStoreLink(String androidPlayStoreLink) {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                "void setAndroidPlayStoreLink(String androidPlayStoreLink)");
+
+
         this.androidPlayStoreLink = androidPlayStoreLink;
     }
 
     void setIosAppStoreLink(String iosAppStoreLink) {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                " void setIosAppStoreLink(String iosAppStoreLink)");
+
         this.iosAppStoreLink = iosAppStoreLink;
     }
 
     List<Sticker> getStickers() {
+        Log.i("RecyclerView", "class StickerPack, " +
+                "List<Sticker> getStickers() ");
+
         return stickers;
     }
 
     long getTotalSize() {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                "long getTotalSize() ");
+
         return totalSize;
     }
 
     @Override
     public int describeContents() {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                "public int describeContents()");
+
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+
+        Log.i("RecyclerView", "class StickerPack, " +
+                " public void writeToParcel(Parcel dest, int flags)");
+
         dest.writeString(identifier);
         dest.writeString(name);
         dest.writeString(publisher);

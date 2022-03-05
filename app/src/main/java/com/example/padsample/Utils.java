@@ -3,6 +3,7 @@ package com.example.padsample;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Utils {
@@ -12,6 +13,10 @@ public class Utils {
      * @return true: Boolean if User is connected to Internet, false otherwise
      */
     public static boolean isInternetConnected(Context context) {
+
+        Log.i("RecyclerView", "class Utils, " +
+                " public static boolean isInternetConnected(Context context)  ");
+
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         if (activeNetwork != null) { // connected to the internet
@@ -33,6 +38,10 @@ public class Utils {
      * This method is used to show toast
      */
     public static void showToast(Context context, String msg) {
+
+        Log.i("RecyclerView", "class Utils, " +
+                " public static void showToast(Context context, String msg)  ");
+
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 }

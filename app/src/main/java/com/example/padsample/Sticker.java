@@ -10,6 +10,7 @@ package com.example.padsample;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import java.util.List;
 
@@ -19,11 +20,19 @@ class Sticker implements Parcelable {
     long size;
 
     Sticker(String imageFileName, List<String> emojis) {
+
+        Log.i("RecyclerView", "class Sticker, " +
+                " Sticker(String imageFileName, List<String> emojis)  ");
+
         this.imageFileName = imageFileName;
         this.emojis = emojis;
     }
 
     private Sticker(Parcel in) {
+
+        Log.i("RecyclerView", "class Sticker, " +
+                " private Sticker(Parcel in) ");
+
         imageFileName = in.readString();
         emojis = in.createStringArrayList();
         size = in.readLong();
@@ -42,16 +51,28 @@ class Sticker implements Parcelable {
     };
 
     public void setSize(long size) {
+
+        Log.i("RecyclerView", "class Sticker, " +
+                " public void setSize(long size) ");
+
         this.size = size;
     }
 
     @Override
     public int describeContents() {
+
+        Log.i("RecyclerView", "class Sticker, " +
+                " public int describeContents() ");
+
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+
+        Log.i("RecyclerView", "class Sticker, " +
+                " public void writeToParcel(Parcel dest, int flags) ");
+
         dest.writeString(imageFileName);
         dest.writeStringList(emojis);
         dest.writeLong(size);
